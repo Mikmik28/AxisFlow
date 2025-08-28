@@ -58,8 +58,11 @@ group :development do
   gem "web-console"
 end
 
-gem "rspec-rails", "~> 8.0", groups: [:development, :test]
+gem "rspec-rails", "~> 8.0", groups: [ :development, :test ]
 
-gem "factory_bot_rails", "~> 6.5", groups: [:development, :test]
+gem "factory_bot_rails", "~> 6.5", groups: [ :development, :test ]
 
 gem "faker", "~> 3.5", group: :test
+
+gem "devise", "~> 4.9"
+gem "pundit", "~> 2.5"
