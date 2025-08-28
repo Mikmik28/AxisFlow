@@ -2,7 +2,7 @@
 org = Organization.find_or_create_by!(name: "Acme Trading", slug: "acme")
 user = User.find_or_create_by!(organization: org, email: "admin@acme.test") do |u|
   # Replace with Devise-specific password setter once Devise installed
-  u.encrypted_password = "password"
+  u.password = "password123"
   u.first_name = "Admin"
   u.last_name = "User"
   u.role = "admin"
