@@ -1,5 +1,6 @@
 name: CI
 on: [push, pull_request]
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -8,15 +9,39 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: axisflow_test
         ports: ["5432:5432"]
         options: >-
-          --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3'
+          ruby-version: "3.3"
+
       - run: sudo apt-get update && sudo apt-get install -y libpq-dev
-      - run: cp config/database.yml.ci config/database.yml || true
-      - run: bin/rails db:create db:schema:load || (bundle install && bin/rails db:create db:schema:load)
-      - run: bundle exec rspec
+
+      # Keep your development database.yml untouched; CI should only use test env.
+      # (Remove the line that copied database.yml.ci over database.yml)
+
+      - run: bundle install --jobs 4 --retry 3
+
+      # 👇 Run all DB tasks explicitly in TEST env
+      - name: Prepare test DB
+        run: |
+          bin/rails db:create
+          bin/rails db:schema:load || bin/rails db:migrate
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/axisflow_test
+
+      - name: Run specs
+        run: bundle exec rspec
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/axisflow_test
