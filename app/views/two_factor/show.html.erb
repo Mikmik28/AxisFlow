@@ -1,0 +1,39 @@
+<!-- app/views/two_factor/show.html.erb -->
+<h1 class="text-xl font-bold mb-4">Two-Factor Authentication</h1>
+
+<%# QR code %>
+<% require "rqrcode" %>
+<% qr = RQRCode::QRCode.new(@provisioning_uri) %>
+<div class="p-4 border rounded inline-block bg-white">
+  <% qr.as_svg(module_size: 4, standalone: true).tap do |svg| %>
+    <%= raw svg %>
+  <% end %>
+</div>
+
+<p class="mt-4 text-sm text-gray-600">
+  Scan with Google Authenticator, 1Password, Authy, etc., then enter a 6-digit code to confirm.
+</p>
+
+<%= form_with url: two_factor_path, method: :put, class: "mt-4 space-x-2" do |f| %>
+  <%= text_field_tag :code, nil, placeholder: "123456", class: "border rounded p-2" %>
+  <%= submit_tag "Confirm", class: "px-4 py-2 rounded bg-black text-white" %>
+<% end %>
+
+<div class="mt-4 space-x-2">
+  <%= button_to "Regenerate Secret", two_factor_path, method: :post,
+      form: { data: { turbo_confirm: "Replace your current secret?" } },
+      class: "px-3 py-2 rounded border" %>
+
+  <%= button_to "Disable 2FA", two_factor_path, method: :delete,
+      form: { data: { turbo_confirm: "Disable two-factor?" } },
+      class: "px-3 py-2 rounded border" %>
+</div>
+
+<% if current_user.otp_backup_codes.present? %>
+  <h2 class="mt-6 font-semibold">Backup Codes</h2>
+  <ul class="list-disc ml-6">
+    <% current_user.otp_backup_codes.each do |c| %>
+      <li><code><%= c %></code></li>
+    <% end %>
+  </ul>
+<% end %>

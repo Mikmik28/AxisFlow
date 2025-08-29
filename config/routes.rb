@@ -14,4 +14,12 @@ Rails.application.routes.draw do
 
   devise_for :users
   root "products#index"
+  resources :products
+  resources :warehouses
+  resources :stock_items, only: %i[index show edit update]
+  resources :stock_movements, only: %i[index new create]
+
+  authenticate :user do
+    resource :two_factor, only: [:show, :create, :update, :destroy], controller: "two_factor"
+  end
 end

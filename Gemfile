@@ -66,3 +66,9 @@ gem "faker", "~> 3.5", group: :test
 
 gem "devise", "~> 4.9"
 gem "pundit", "~> 2.5"
+
+gem "devise_invitable", "~> 2.0"
+
+gem "devise-two-factor", "~> 6.1"
+
+gem "rqrcode", "~> 3.1"
